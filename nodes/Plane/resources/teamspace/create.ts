@@ -43,11 +43,14 @@ export const teamspaceCreateDescription: INodeProperties[] = [
 				description: 'The HTML description of the teamspace',
 			},
 			{
-				displayName: 'Lead',
+				displayName: 'Lead Name or ID',
 				name: 'lead',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The UUID of the user who leads the teamspace',
+				description: 'The user who leads this. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 		],
 	},

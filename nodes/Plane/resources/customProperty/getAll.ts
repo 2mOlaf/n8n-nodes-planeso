@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequestOffsetAllItems } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequestOffsetAllItems, rlcValue } from '../../utils/helpers';
+import { projectRlc, workItemTypeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['getAll'],
@@ -14,28 +15,8 @@ const showFor = {
 };
 
 export const customPropertyGetAllDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Type ID',
-		name: 'typeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the work item type',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	workItemTypeRlc(showFor),
 	{
 		displayName: 'Return All',
 		name: 'returnAll',
@@ -68,8 +49,8 @@ export async function customPropertyGetAll(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const typeId = this.getNodeParameter('typeId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const typeId = rlcValue(this, 'typeId', 0);
 	const returnAll = this.getNodeParameter('returnAll', 0) as boolean;
 	const limit = this.getNodeParameter('limit', 0, 50) as number;
 

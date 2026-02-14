@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { intakeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,24 +14,14 @@ const showFor = {
 };
 
 export const intakeGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Intake ID',
-		name: 'intakeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the intake issue to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	intakeRlc(showFor),
 ];
 
 export async function intakeGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const intakeId = this.getNodeParameter('intakeId', 0) as string;
+	const intakeId = rlcValue(this, 'intakeId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

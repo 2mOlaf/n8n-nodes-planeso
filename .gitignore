@@ -10,3 +10,5 @@ coverage
 *.tsbuildinfo
 bun.lock
 .claude
+.env
+Makefile

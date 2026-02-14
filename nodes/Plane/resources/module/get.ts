@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, moduleRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,36 +14,16 @@ const showFor = {
 };
 
 export const moduleGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Module ID',
-		name: 'moduleId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the module to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	moduleRlc(showFor),
 ];
 
 export async function moduleGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const moduleId = this.getNodeParameter('moduleId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const moduleId = rlcValue(this, 'moduleId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

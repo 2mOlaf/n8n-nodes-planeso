@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['create'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const workItemCreateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
 	{
 		displayName: 'Name',
 		name: 'name',
@@ -47,11 +38,14 @@ export const workItemCreateDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Assignees',
+				displayName: 'Assignee Names or IDs',
 				name: 'assignees',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of user UUIDs to assign',
+				type: 'multiOptions',
+				default: [],
+				description: 'Users to assign to the work item. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Description HTML',
@@ -68,11 +62,14 @@ export const workItemCreateDescription: INodeProperties[] = [
 				description: 'The estimate point value',
 			},
 			{
-				displayName: 'Labels',
+				displayName: 'Label Names or IDs',
 				name: 'labels',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of label UUIDs',
+				type: 'multiOptions',
+				default: [],
+				description: 'Labels to add to the work item. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getLabels',
+				},
 			},
 			{
 				displayName: 'Parent',
@@ -104,11 +101,14 @@ export const workItemCreateDescription: INodeProperties[] = [
 				description: 'The start date of the work item',
 			},
 			{
-				displayName: 'State',
+				displayName: 'State Name or ID',
 				name: 'state',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The state ID of the work item',
+				description: 'The state of the work item. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getStates',
+				},
 			},
 			{
 				displayName: 'Target Date',
@@ -119,11 +119,14 @@ export const workItemCreateDescription: INodeProperties[] = [
 				description: 'The target date of the work item',
 			},
 			{
-				displayName: 'Type',
+				displayName: 'Type Name or ID',
 				name: 'type',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The work item type ID',
+				description: 'The work item type. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getWorkItemTypes',
+				},
 			},
 		],
 	},
@@ -133,7 +136,7 @@ export async function workItemCreate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
 	const name = this.getNodeParameter('name', 0) as string;
 	const additionalFields = this.getNodeParameter('additionalFields', 0) as IDataObject;
 
@@ -151,10 +154,12 @@ export async function workItemCreate(
 		body.state = additionalFields.state;
 	}
 	if (additionalFields.assignees) {
-		body.assignees = (additionalFields.assignees as string).split(',').map((s) => s.trim());
+		const val = additionalFields.assignees;
+		body.assignees = Array.isArray(val) ? val : (val as string).split(',').map((s) => s.trim());
 	}
 	if (additionalFields.labels) {
-		body.labels = (additionalFields.labels as string).split(',').map((s) => s.trim());
+		const val = additionalFields.labels;
+		body.labels = Array.isArray(val) ? val : (val as string).split(',').map((s) => s.trim());
 	}
 	if (additionalFields.parent) {
 		body.parent = additionalFields.parent;

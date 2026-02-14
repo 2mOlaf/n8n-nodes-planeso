@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { stickyRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,24 +14,14 @@ const showFor = {
 };
 
 export const stickyGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Sticky ID',
-		name: 'stickyId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the sticky to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	stickyRlc(showFor),
 ];
 
 export async function stickyGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const stickyId = this.getNodeParameter('stickyId', 0) as string;
+	const stickyId = rlcValue(this, 'stickyId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

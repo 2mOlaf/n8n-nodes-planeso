@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { customerRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['linkWorkItems'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const customerLinkWorkItemsDescription: INodeProperties[] = [
-	{
-		displayName: 'Customer ID',
-		name: 'customerId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the customer to link work items to',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	customerRlc(showFor),
 	{
 		displayName: 'Work Item IDs',
 		name: 'work_item_ids',
@@ -42,7 +33,7 @@ export async function customerLinkWorkItems(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const customerId = this.getNodeParameter('customerId', 0) as string;
+	const customerId = rlcValue(this, 'customerId', 0);
 	const workItemIdsRaw = this.getNodeParameter('work_item_ids', 0) as string;
 
 	const workItemIds = workItemIdsRaw.split(',').map((id) => id.trim());

@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, moduleRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,28 +15,8 @@ const showFor = {
 };
 
 export const moduleUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Module ID',
-		name: 'moduleId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the module to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	moduleRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -54,18 +35,24 @@ export const moduleUpdateDescription: INodeProperties[] = [
 				description: 'The description of the module',
 			},
 			{
-				displayName: 'Lead',
+				displayName: 'Lead Name or ID',
 				name: 'lead',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The UUID of the user who leads the module',
+				description: 'The user who leads this. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
-				displayName: 'Members',
+				displayName: 'Member Names or IDs',
 				name: 'members',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of user UUIDs to add as members',
+				type: 'multiOptions',
+				default: [],
+				description: 'Users to add as members. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Name',
@@ -113,8 +100,8 @@ export async function moduleUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const moduleId = this.getNodeParameter('moduleId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const moduleId = rlcValue(this, 'moduleId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {};
@@ -138,7 +125,8 @@ export async function moduleUpdate(
 		body.lead = updateFields.lead;
 	}
 	if (updateFields.members) {
-		body.members = (updateFields.members as string).split(',').map((s) => s.trim());
+		const val = updateFields.members;
+		body.members = Array.isArray(val) ? val : (val as string).split(',').map((s) => s.trim());
 	}
 
 	const response = await planeRequest.call(this, {

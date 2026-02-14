@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, workItemTypeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,28 +15,8 @@ const showFor = {
 };
 
 export const workItemTypeUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Type ID',
-		name: 'typeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the work item type to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	workItemTypeRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -96,8 +77,8 @@ export async function workItemTypeUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const typeId = this.getNodeParameter('typeId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const typeId = rlcValue(this, 'typeId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {};

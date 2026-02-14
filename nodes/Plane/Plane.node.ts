@@ -7,6 +7,35 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
+import {
+	// listSearch methods (for resource locators)
+	searchProjects,
+	searchMembers,
+	searchStates,
+	searchLabels,
+	searchCycles,
+	searchModules,
+	searchWorkItemTypes,
+	searchEpics,
+	searchTeamspaces,
+	searchInitiatives,
+	searchCustomers,
+	searchInitiativeLabels,
+	// legacy loadOptions (for multiOptions fields inside collections)
+	getMembers,
+	getProjects,
+	getInitiativeLabels,
+	getStates,
+	getLabels,
+	getWorkItemTypes,
+	getTeamspaces,
+	getInitiatives,
+	getCustomers,
+	getCycles,
+	getModules,
+	getEpics,
+} from './utils/loadOptions';
+
 // Core resources
 import { userDescription, userGetMe } from './resources/user';
 import { memberDescription, memberGetAll } from './resources/member';
@@ -236,7 +265,7 @@ export class Plane implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Plane',
 		name: 'plane',
-		icon: 'file:../../icons/plane.png',
+		icon: 'file:../../icons/plane.svg',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -328,6 +357,37 @@ export class Plane implements INodeType {
 			...teamspaceProjectDescription,
 			...stickyDescription,
 		],
+	};
+
+	methods = {
+		listSearch: {
+			searchProjects,
+			searchMembers,
+			searchStates,
+			searchLabels,
+			searchCycles,
+			searchModules,
+			searchWorkItemTypes,
+			searchEpics,
+			searchTeamspaces,
+			searchInitiatives,
+			searchCustomers,
+			searchInitiativeLabels,
+		},
+		loadOptions: {
+			getMembers,
+			getProjects,
+			getInitiativeLabels,
+			getStates,
+			getLabels,
+			getWorkItemTypes,
+			getTeamspaces,
+			getInitiatives,
+			getCustomers,
+			getCycles,
+			getModules,
+			getEpics,
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {

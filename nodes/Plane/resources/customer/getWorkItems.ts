@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequestOffsetAllItems } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequestOffsetAllItems, rlcValue } from '../../utils/helpers';
+import { customerRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['getWorkItems'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const customerGetWorkItemsDescription: INodeProperties[] = [
-	{
-		displayName: 'Customer ID',
-		name: 'customerId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the customer to get work items for',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	customerRlc(showFor),
 	{
 		displayName: 'Return All',
 		name: 'returnAll',
@@ -57,7 +48,7 @@ export async function customerGetWorkItems(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const customerId = this.getNodeParameter('customerId', 0) as string;
+	const customerId = rlcValue(this, 'customerId', 0);
 	const returnAll = this.getNodeParameter('returnAll', 0) as boolean;
 	const limit = this.getNodeParameter('limit', 0, 50) as number;
 

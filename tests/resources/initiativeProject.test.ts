@@ -8,7 +8,7 @@ describe('InitiativeProject', () => {
 	describe('add', () => {
 		it('should POST project IDs to initiative', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { initiativeId: 'init1', project_ids: 'p1,p2' },
+				nodeParameters: { initiativeId: 'init1', project_ids: ['p1', 'p2'] },
 				httpResponse: [{ id: 'p1' }, { id: 'p2' }],
 			});
 
@@ -39,7 +39,7 @@ describe('InitiativeProject', () => {
 	describe('remove', () => {
 		it('should DELETE project IDs from initiative', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { initiativeId: 'init1', project_ids: 'p1' },
+				nodeParameters: { initiativeId: 'init1', project_ids: ['p1'] },
 				httpResponse: undefined,
 			});
 

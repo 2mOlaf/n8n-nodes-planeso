@@ -5,7 +5,7 @@ import type {
 	INodeProperties,
 } from 'n8n-workflow';
 
-import { API_ENDPOINTS, DEFAULT_BASE_URL } from '../nodes/Plane/utils/constants';
+import { DEFAULT_BASE_URL } from '../nodes/Plane/utils/constants';
 
 export class PlaneApi implements ICredentialType {
 	name = 'planeApi';
@@ -14,7 +14,7 @@ export class PlaneApi implements ICredentialType {
 
 	documentationUrl = 'https://developers.plane.so/api-reference/introduction';
 
-	icon = 'file:../icons/plane.png' as const;
+	icon = 'file:../icons/plane.svg' as const;
 
 	properties: INodeProperties[] = [
 		{
@@ -38,7 +38,8 @@ export class PlaneApi implements ICredentialType {
 			type: 'string',
 			required: true,
 			default: '',
-			description: 'Your workspace identifier (from the URL)',
+			placeholder: 'e.g. my-team',
+			description: 'The workspace slug from your Plane URL (e.g. "my-team" from app.plane.so/my-team/). Do not include slashes.',
 		},
 	];
 
@@ -54,7 +55,7 @@ export class PlaneApi implements ICredentialType {
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials.baseUrl}}',
-			url: API_ENDPOINTS.USERS_ME,
+			url: '={{"/api/v1/workspaces/" + $credentials.workspaceSlug + "/projects/"}}',
 		},
 	};
 }

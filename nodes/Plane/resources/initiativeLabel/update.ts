@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { initiativeLabelRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const initiativeLabelUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Label ID',
-		name: 'labelId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the initiative label to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	initiativeLabelRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -64,7 +55,7 @@ export async function initiativeLabelUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const labelId = this.getNodeParameter('labelId', 0) as string;
+	const labelId = rlcValue(this, 'labelId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {

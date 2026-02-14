@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { initiativeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const initiativeUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Initiative ID',
-		name: 'initiativeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the initiative to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	initiativeRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -50,11 +41,14 @@ export const initiativeUpdateDescription: INodeProperties[] = [
 				description: 'The end date of the initiative (YYYY-MM-DD)',
 			},
 			{
-				displayName: 'Lead',
+				displayName: 'Lead Name or ID',
 				name: 'lead',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The UUID of the user who leads the initiative',
+				description: 'The user who leads this. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Name',
@@ -107,7 +101,7 @@ export async function initiativeUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const initiativeId = this.getNodeParameter('initiativeId', 0) as string;
+	const initiativeId = rlcValue(this, 'initiativeId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {

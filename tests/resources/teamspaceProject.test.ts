@@ -8,7 +8,7 @@ describe('TeamspaceProject', () => {
 	describe('add', () => {
 		it('should POST project IDs to teamspace', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { teamspaceId: 'ts1', project_ids: 'p1,p2' },
+				nodeParameters: { teamspaceId: 'ts1', project_ids: ['p1', 'p2'] },
 				httpResponse: [{ id: 'p1' }, { id: 'p2' }],
 			});
 
@@ -39,7 +39,7 @@ describe('TeamspaceProject', () => {
 	describe('remove', () => {
 		it('should DELETE project IDs from teamspace', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { teamspaceId: 'ts1', project_ids: 'p1' },
+				nodeParameters: { teamspaceId: 'ts1', project_ids: ['p1'] },
 				httpResponse: undefined,
 			});
 

@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { customerRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,24 +14,14 @@ const showFor = {
 };
 
 export const customerGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Customer ID',
-		name: 'customerId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the customer to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	customerRlc(showFor),
 ];
 
 export async function customerGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const customerId = this.getNodeParameter('customerId', 0) as string;
+	const customerId = rlcValue(this, 'customerId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

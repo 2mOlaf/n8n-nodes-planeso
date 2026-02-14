@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['create'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const moduleCreateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
 	{
 		displayName: 'Name',
 		name: 'name',
@@ -54,18 +45,24 @@ export const moduleCreateDescription: INodeProperties[] = [
 				description: 'The description of the module',
 			},
 			{
-				displayName: 'Lead',
+				displayName: 'Lead Name or ID',
 				name: 'lead',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The UUID of the user who leads the module',
+				description: 'The user who leads this. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
-				displayName: 'Members',
+				displayName: 'Member Names or IDs',
 				name: 'members',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of user UUIDs to add as members',
+				type: 'multiOptions',
+				default: [],
+				description: 'Users to add as members. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Start Date',
@@ -106,7 +103,7 @@ export async function moduleCreate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
 	const name = this.getNodeParameter('name', 0) as string;
 	const additionalFields = this.getNodeParameter('additionalFields', 0) as IDataObject;
 
@@ -130,7 +127,8 @@ export async function moduleCreate(
 		body.lead = additionalFields.lead;
 	}
 	if (additionalFields.members) {
-		body.members = (additionalFields.members as string).split(',').map((s) => s.trim());
+		const val = additionalFields.members;
+		body.members = Array.isArray(val) ? val : (val as string).split(',').map((s) => s.trim());
 	}
 
 	const response = await planeRequest.call(this, {

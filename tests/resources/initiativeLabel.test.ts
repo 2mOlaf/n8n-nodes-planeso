@@ -93,7 +93,7 @@ describe('InitiativeLabel', () => {
 	describe('addToInitiative', () => {
 		it('should POST label IDs to initiative', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { initiativeId: 'init1', label_ids: 'il1,il2' },
+				nodeParameters: { initiativeId: 'init1', label_ids: ['il1', 'il2'] },
 				httpResponse: [{ id: 'il1' }, { id: 'il2' }],
 			});
 
@@ -109,7 +109,7 @@ describe('InitiativeLabel', () => {
 	describe('removeFromInitiative', () => {
 		it('should DELETE label IDs from initiative', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { initiativeId: 'init1', label_ids: 'il1,il2' },
+				nodeParameters: { initiativeId: 'init1', label_ids: ['il1', 'il2'] },
 				httpResponse: undefined,
 			});
 

@@ -50,11 +50,14 @@ export const initiativeCreateDescription: INodeProperties[] = [
 				description: 'The end date of the initiative (YYYY-MM-DD)',
 			},
 			{
-				displayName: 'Lead',
+				displayName: 'Lead Name or ID',
 				name: 'lead',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The UUID of the user who leads the initiative',
+				description: 'The user who leads this. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Start Date',

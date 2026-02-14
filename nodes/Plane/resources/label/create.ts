@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { projectRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['create'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const labelCreateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project to create the label in',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
 	{
 		displayName: 'Name',
 		name: 'name',
@@ -68,7 +59,7 @@ export async function labelCreate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
 	const name = this.getNodeParameter('name', 0) as string;
 	const additionalFields = this.getNodeParameter('additionalFields', 0) as IDataObject;
 

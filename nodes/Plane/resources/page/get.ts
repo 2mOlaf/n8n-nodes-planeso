@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { pageRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -29,12 +30,39 @@ export const pageGetDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Project ID',
+		displayName: 'Project',
 		name: 'projectId',
-		type: 'string',
-		default: '',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		description: 'The ID of the project',
+		description: 'The project to use',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a project...',
+				typeOptions: {
+					searchListMethod: 'searchProjects',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g. 00000000-0000-0000-0000-000000000000',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-fA-F0-9-]+',
+							errorMessage: 'Not a valid ID',
+						},
+					},
+				],
+			},
+		],
 		displayOptions: {
 			show: {
 				...showFor,
@@ -42,17 +70,7 @@ export const pageGetDescription: INodeProperties[] = [
 			},
 		},
 	},
-	{
-		displayName: 'Page ID',
-		name: 'pageId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the page to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	pageRlc(showFor),
 ];
 
 export async function pageGet(
@@ -60,11 +78,11 @@ export async function pageGet(
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
 	const scope = this.getNodeParameter('scope', 0) as string;
-	const pageId = this.getNodeParameter('pageId', 0) as string;
+	const pageId = rlcValue(this, 'pageId', 0);
 
 	let url: string;
 	if (scope === 'project') {
-		const projectId = this.getNodeParameter('projectId', 0) as string;
+		const projectId = rlcValue(this, 'projectId', 0);
 		url = API_ENDPOINTS.PROJECT_PAGE(slug, projectId, pageId);
 	} else {
 		url = API_ENDPOINTS.WORKSPACE_PAGE(slug, pageId);

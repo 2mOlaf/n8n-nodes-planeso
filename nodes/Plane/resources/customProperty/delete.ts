@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { projectRlc, workItemTypeRlc, propertyRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['delete'],
@@ -13,48 +14,18 @@ const showFor = {
 };
 
 export const customPropertyDeleteDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Type ID',
-		name: 'typeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the work item type',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Property ID',
-		name: 'propertyId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the custom property to delete',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	workItemTypeRlc(showFor),
+	propertyRlc(showFor),
 ];
 
 export async function customPropertyDelete(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const typeId = this.getNodeParameter('typeId', 0) as string;
-	const propertyId = this.getNodeParameter('propertyId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const typeId = rlcValue(this, 'typeId', 0);
+	const propertyId = rlcValue(this, 'propertyId', 0);
 
 	await planeRequest.call(this, {
 		method: 'DELETE',

@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { teamspaceRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['remove'],
@@ -14,24 +15,17 @@ const showFor = {
 };
 
 export const teamspaceMemberRemoveDescription: INodeProperties[] = [
+	teamspaceRlc(showFor),
 	{
-		displayName: 'Teamspace ID',
-		name: 'teamspaceId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the teamspace to remove members from',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Member IDs',
+		displayName: 'Member Names or IDs',
 		name: 'member_ids',
-		type: 'string',
-		default: '',
+		type: 'multiOptions',
+		default: [],
 		required: true,
-		description: 'Comma-separated UUIDs of the members to remove',
+		description: 'The members to select. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		typeOptions: {
+			loadOptionsMethod: 'getMembers',
+		},
 		displayOptions: {
 			show: showFor,
 		},
@@ -42,9 +36,9 @@ export async function teamspaceMemberRemove(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const teamspaceId = this.getNodeParameter('teamspaceId', 0) as string;
-	const memberIdsRaw = this.getNodeParameter('member_ids', 0) as string;
-	const member_ids = memberIdsRaw.split(',').map((id) => id.trim());
+	const teamspaceId = rlcValue(this, 'teamspaceId', 0);
+	const memberIdsRaw = this.getNodeParameter('member_ids', 0);
+	const member_ids = Array.isArray(memberIdsRaw) ? memberIdsRaw : (memberIdsRaw as string).split(',').map((id) => id.trim());
 
 	const body: IDataObject = {
 		member_ids,

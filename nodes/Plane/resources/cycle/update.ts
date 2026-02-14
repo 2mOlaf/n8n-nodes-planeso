@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, cycleRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,28 +15,8 @@ const showFor = {
 };
 
 export const cycleUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Cycle ID',
-		name: 'cycleId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the cycle to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	cycleRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -69,11 +50,14 @@ export const cycleUpdateDescription: INodeProperties[] = [
 				description: 'The name of the cycle',
 			},
 			{
-				displayName: 'Owned By',
+				displayName: 'Owned By Name or ID',
 				name: 'owned_by',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The UUID of the user who owns the cycle',
+				description: 'The user who owns the cycle. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Start Date',
@@ -91,8 +75,8 @@ export async function cycleUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const cycleId = this.getNodeParameter('cycleId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const cycleId = rlcValue(this, 'cycleId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {

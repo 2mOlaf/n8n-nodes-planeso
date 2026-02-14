@@ -30,6 +30,7 @@
 		"lint:fix": "n8n-node lint --fix",
 		"release": "n8n-node release",
 		"test": "bun test tests/",
+		"test:integration": "bun test tests/integration/",
 		"prepublishOnly": "n8n-node prerelease"
 	},
 	"files": [

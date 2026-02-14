@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { initiativeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,24 +14,14 @@ const showFor = {
 };
 
 export const initiativeGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Initiative ID',
-		name: 'initiativeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the initiative to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	initiativeRlc(showFor),
 ];
 
 export async function initiativeGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const initiativeId = this.getNodeParameter('initiativeId', 0) as string;
+	const initiativeId = rlcValue(this, 'initiativeId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

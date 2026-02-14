@@ -34,7 +34,7 @@ describe('WorkItem', () => {
 				nodeParameters: {
 					projectId: 'p1',
 					name: 'Task',
-					additionalFields: { priority: 'high', state: 's1', assignees: 'u1,u2' },
+					additionalFields: { priority: 'high', state: 's1', assignees: ['u1', 'u2'] },
 				},
 				httpResponse: { id: 'wi1' },
 			});

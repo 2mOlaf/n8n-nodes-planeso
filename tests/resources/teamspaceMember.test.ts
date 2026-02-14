@@ -8,7 +8,7 @@ describe('TeamspaceMember', () => {
 	describe('add', () => {
 		it('should POST member IDs to teamspace', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { teamspaceId: 'ts1', member_ids: 'u1,u2' },
+				nodeParameters: { teamspaceId: 'ts1', member_ids: ['u1', 'u2'] },
 				httpResponse: [{ id: 'u1' }, { id: 'u2' }],
 			});
 
@@ -39,7 +39,7 @@ describe('TeamspaceMember', () => {
 	describe('remove', () => {
 		it('should DELETE member IDs from teamspace', async () => {
 			const { ctx, requestCalls } = createMockExecuteFunctions({
-				nodeParameters: { teamspaceId: 'ts1', member_ids: 'u1' },
+				nodeParameters: { teamspaceId: 'ts1', member_ids: ['u1'] },
 				httpResponse: undefined,
 			});
 

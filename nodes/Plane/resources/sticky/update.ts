@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { stickyRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const stickyUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Sticky ID',
-		name: 'stickyId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the sticky to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	stickyRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -71,7 +62,7 @@ export async function stickyUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const stickyId = this.getNodeParameter('stickyId', 0) as string;
+	const stickyId = rlcValue(this, 'stickyId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {

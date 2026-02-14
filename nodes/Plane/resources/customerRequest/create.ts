@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { customerRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['create'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const customerRequestCreateDescription: INodeProperties[] = [
-	{
-		displayName: 'Customer ID',
-		name: 'customerId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the customer to create the request for',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	customerRlc(showFor),
 	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
@@ -57,7 +48,7 @@ export async function customerRequestCreate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const customerId = this.getNodeParameter('customerId', 0) as string;
+	const customerId = rlcValue(this, 'customerId', 0);
 	const additionalFields = this.getNodeParameter('additionalFields', 0) as IDataObject;
 
 	const body: IDataObject = {

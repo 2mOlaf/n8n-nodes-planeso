@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, workItemRlc, workItemAttachmentRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,48 +14,18 @@ const showFor = {
 };
 
 export const workItemAttachmentGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Work Item ID',
-		name: 'workItemId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the work item',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Attachment ID',
-		name: 'attachmentId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the attachment',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	workItemRlc(showFor),
+	workItemAttachmentRlc(showFor),
 ];
 
 export async function workItemAttachmentGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const workItemId = this.getNodeParameter('workItemId', 0) as string;
-	const attachmentId = this.getNodeParameter('attachmentId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const workItemId = rlcValue(this, 'workItemId', 0);
+	const attachmentId = rlcValue(this, 'attachmentId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

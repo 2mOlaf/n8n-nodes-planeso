@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { teamspaceRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['delete'],
@@ -13,24 +14,14 @@ const showFor = {
 };
 
 export const teamspaceDeleteDescription: INodeProperties[] = [
-	{
-		displayName: 'Teamspace ID',
-		name: 'teamspaceId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the teamspace to delete',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	teamspaceRlc(showFor),
 ];
 
 export async function teamspaceDelete(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const teamspaceId = this.getNodeParameter('teamspaceId', 0) as string;
+	const teamspaceId = rlcValue(this, 'teamspaceId', 0);
 
 	await planeRequest.call(this, {
 		method: 'DELETE',

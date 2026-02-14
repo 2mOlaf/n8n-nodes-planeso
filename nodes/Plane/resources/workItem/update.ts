@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, workItemRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,28 +15,8 @@ const showFor = {
 };
 
 export const workItemUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Work Item ID',
-		name: 'workItemId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the work item to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	workItemRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -47,11 +28,14 @@ export const workItemUpdateDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Assignees',
+				displayName: 'Assignee Names or IDs',
 				name: 'assignees',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of user UUIDs to assign',
+				type: 'multiOptions',
+				default: [],
+				description: 'Users to assign to the work item. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Description HTML',
@@ -68,11 +52,14 @@ export const workItemUpdateDescription: INodeProperties[] = [
 				description: 'The estimate point value',
 			},
 			{
-				displayName: 'Labels',
+				displayName: 'Label Names or IDs',
 				name: 'labels',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of label UUIDs',
+				type: 'multiOptions',
+				default: [],
+				description: 'Labels to add to the work item. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getLabels',
+				},
 			},
 			{
 				displayName: 'Name',
@@ -111,11 +98,14 @@ export const workItemUpdateDescription: INodeProperties[] = [
 				description: 'The start date of the work item',
 			},
 			{
-				displayName: 'State',
+				displayName: 'State Name or ID',
 				name: 'state',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The state ID of the work item',
+				description: 'The state of the work item. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getStates',
+				},
 			},
 			{
 				displayName: 'Target Date',
@@ -126,11 +116,14 @@ export const workItemUpdateDescription: INodeProperties[] = [
 				description: 'The target date of the work item',
 			},
 			{
-				displayName: 'Type',
+				displayName: 'Type Name or ID',
 				name: 'type',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The work item type ID',
+				description: 'The work item type. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getWorkItemTypes',
+				},
 			},
 		],
 	},
@@ -140,8 +133,8 @@ export async function workItemUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const workItemId = this.getNodeParameter('workItemId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const workItemId = rlcValue(this, 'workItemId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {};
@@ -159,10 +152,12 @@ export async function workItemUpdate(
 		body.state = updateFields.state;
 	}
 	if (updateFields.assignees) {
-		body.assignees = (updateFields.assignees as string).split(',').map((s) => s.trim());
+		const val = updateFields.assignees;
+		body.assignees = Array.isArray(val) ? val : (val as string).split(',').map((s) => s.trim());
 	}
 	if (updateFields.labels) {
-		body.labels = (updateFields.labels as string).split(',').map((s) => s.trim());
+		const val = updateFields.labels;
+		body.labels = Array.isArray(val) ? val : (val as string).split(',').map((s) => s.trim());
 	}
 	if (updateFields.parent) {
 		body.parent = updateFields.parent;

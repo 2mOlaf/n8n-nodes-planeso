@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, workItemRlc, workItemCommentRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,48 +14,18 @@ const showFor = {
 };
 
 export const workItemCommentGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Work Item ID',
-		name: 'workItemId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the work item',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Comment ID',
-		name: 'commentId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the comment',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	workItemRlc(showFor),
+	workItemCommentRlc(showFor),
 ];
 
 export async function workItemCommentGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const workItemId = this.getNodeParameter('workItemId', 0) as string;
-	const commentId = this.getNodeParameter('commentId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const workItemId = rlcValue(this, 'workItemId', 0);
+	const commentId = rlcValue(this, 'commentId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

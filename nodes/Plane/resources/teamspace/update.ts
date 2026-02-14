@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { teamspaceRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const teamspaceUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Teamspace ID',
-		name: 'teamspaceId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the teamspace to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	teamspaceRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -43,11 +34,14 @@ export const teamspaceUpdateDescription: INodeProperties[] = [
 				description: 'The HTML description of the teamspace',
 			},
 			{
-				displayName: 'Lead',
+				displayName: 'Lead Name or ID',
 				name: 'lead',
-				type: 'string',
+				type: 'options',
 				default: '',
-				description: 'The UUID of the user who leads the teamspace',
+				description: 'The user who leads this. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'getMembers',
+				},
 			},
 			{
 				displayName: 'Name',
@@ -64,7 +58,7 @@ export async function teamspaceUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const teamspaceId = this.getNodeParameter('teamspaceId', 0) as string;
+	const teamspaceId = rlcValue(this, 'teamspaceId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {

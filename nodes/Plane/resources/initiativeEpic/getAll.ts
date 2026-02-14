@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequestOffsetAllItems } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequestOffsetAllItems, rlcValue } from '../../utils/helpers';
+import { initiativeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['getAll'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const initiativeEpicGetAllDescription: INodeProperties[] = [
-	{
-		displayName: 'Initiative ID',
-		name: 'initiativeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the initiative to list epics for',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	initiativeRlc(showFor),
 	{
 		displayName: 'Return All',
 		name: 'returnAll',
@@ -57,7 +48,7 @@ export async function initiativeEpicGetAll(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const initiativeId = this.getNodeParameter('initiativeId', 0) as string;
+	const initiativeId = rlcValue(this, 'initiativeId', 0);
 	const returnAll = this.getNodeParameter('returnAll', 0) as boolean;
 	const limit = this.getNodeParameter('limit', 0, 50) as number;
 

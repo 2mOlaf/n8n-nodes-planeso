@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { projectRlc, labelRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,28 +15,8 @@ const showFor = {
 };
 
 export const labelUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project the label belongs to',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Label ID',
-		name: 'labelId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the label to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	labelRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -75,8 +56,8 @@ export async function labelUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const labelId = this.getNodeParameter('labelId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const labelId = rlcValue(this, 'labelId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {

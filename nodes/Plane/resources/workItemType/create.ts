@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['create'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const workItemTypeCreateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
 	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
@@ -85,7 +76,7 @@ export async function workItemTypeCreate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
 	const additionalFields = this.getNodeParameter('additionalFields', 0) as IDataObject;
 
 	const body: IDataObject = {};

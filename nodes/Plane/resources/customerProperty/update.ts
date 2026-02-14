@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { propertyRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const customerPropertyUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Property ID',
-		name: 'propertyId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the customer property to update',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	propertyRlc(showFor),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -97,7 +88,7 @@ export async function customerPropertyUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const propertyId = this.getNodeParameter('propertyId', 0) as string;
+	const propertyId = rlcValue(this, 'propertyId', 0);
 	const updateFields = this.getNodeParameter('updateFields', 0) as IDataObject;
 
 	const body: IDataObject = {

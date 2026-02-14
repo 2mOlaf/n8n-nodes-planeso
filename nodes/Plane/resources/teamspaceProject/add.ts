@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { teamspaceRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['add'],
@@ -14,24 +15,17 @@ const showFor = {
 };
 
 export const teamspaceProjectAddDescription: INodeProperties[] = [
+	teamspaceRlc(showFor),
 	{
-		displayName: 'Teamspace ID',
-		name: 'teamspaceId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the teamspace to add projects to',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Project IDs',
+		displayName: 'Project Names or IDs',
 		name: 'project_ids',
-		type: 'string',
-		default: '',
+		type: 'multiOptions',
+		default: [],
 		required: true,
-		description: 'Comma-separated UUIDs of the projects to add',
+		description: 'The projects to select. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		typeOptions: {
+			loadOptionsMethod: 'getProjects',
+		},
 		displayOptions: {
 			show: showFor,
 		},
@@ -42,9 +36,9 @@ export async function teamspaceProjectAdd(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const teamspaceId = this.getNodeParameter('teamspaceId', 0) as string;
-	const projectIdsRaw = this.getNodeParameter('project_ids', 0) as string;
-	const project_ids = projectIdsRaw.split(',').map((id) => id.trim());
+	const teamspaceId = rlcValue(this, 'teamspaceId', 0);
+	const projectIdsRaw = this.getNodeParameter('project_ids', 0);
+	const project_ids = Array.isArray(projectIdsRaw) ? projectIdsRaw : (projectIdsRaw as string).split(',').map((id) => id.trim());
 
 	const body: IDataObject = {
 		project_ids,

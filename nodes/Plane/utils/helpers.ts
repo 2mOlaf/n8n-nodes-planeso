@@ -2,15 +2,37 @@ import type {
 	IDataObject,
 	IExecuteFunctions,
 	IHttpRequestOptions,
+	ILoadOptionsFunctions,
 } from 'n8n-workflow';
 
-export async function getWorkspaceSlug(ctx: IExecuteFunctions): Promise<string> {
+export type PlaneContext = IExecuteFunctions | ILoadOptionsFunctions;
+
+/**
+ * Safely extract the string value from a resource-locator (RLC) node parameter.
+ * `getNodeParameter('x', i, { extractValue: true })` should return the plain
+ * value, but in some n8n versions it returns the full RLC object instead.
+ * This helper handles both cases.
+ */
+export function rlcValue(ctx: IExecuteFunctions, name: string, itemIndex: number): string {
+	const raw = ctx.getNodeParameter(name, itemIndex, { extractValue: true });
+	if (typeof raw === 'string') return raw;
+	if (raw && typeof raw === 'object' && 'value' in raw) {
+		return (raw as { value: string }).value;
+	}
+	return String(raw);
+}
+
+export async function getWorkspaceSlug(ctx: PlaneContext): Promise<string> {
 	const credentials = await ctx.getCredentials('planeApi');
-	return credentials.workspaceSlug as string;
+	const raw = (credentials.workspaceSlug as string ?? '').trim().replace(/\/+$/, '');
+	if (!raw) {
+		throw new Error('Workspace slug is not set. Please add it in your Plane API credentials.');
+	}
+	return raw;
 }
 
 export async function planeRequest(
-	this: IExecuteFunctions,
+	this: PlaneContext,
 	options: Partial<IHttpRequestOptions> = {},
 ) {
 	const credentials = await this.getCredentials('planeApi');
@@ -29,6 +51,13 @@ export async function planeRequest(
 		...options,
 		headers,
 	} as IHttpRequestOptions;
+
+	// DELETE endpoints return 204 No Content – avoid JSON-parse errors on empty body
+	if (options.method === 'DELETE') {
+		opts.returnFullResponse = true;
+		const resp = await this.helpers.httpRequest!(opts);
+		return (resp as IDataObject).body ?? {};
+	}
 
 	return this.helpers.httpRequest!(opts);
 }

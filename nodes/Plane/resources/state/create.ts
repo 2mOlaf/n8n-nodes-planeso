@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { projectRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['create'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const stateCreateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project to create the state in',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
 	{
 		displayName: 'Name',
 		name: 'name',
@@ -105,7 +96,7 @@ export async function stateCreate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
 	const name = this.getNodeParameter('name', 0) as string;
 	const color = this.getNodeParameter('color', 0) as string;
 	const group = this.getNodeParameter('group', 0) as string;

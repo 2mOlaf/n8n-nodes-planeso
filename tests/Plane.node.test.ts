@@ -105,7 +105,7 @@ describe('Plane.node', () => {
 	it('should dispatch initiativeLabel.addToInitiative correctly', async () => {
 		const { ctx, requestCalls } = createNodeCtx('initiativeLabel', 'addToInitiative', {
 			initiativeId: 'init1',
-			label_ids: 'l1,l2',
+			label_ids: ['l1', 'l2'],
 		}, [{ id: 'l1' }]);
 
 		const result = await node.execute.call(ctx);

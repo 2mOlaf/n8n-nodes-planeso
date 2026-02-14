@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { initiativeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['remove'],
@@ -14,17 +15,7 @@ const showFor = {
 };
 
 export const initiativeEpicRemoveDescription: INodeProperties[] = [
-	{
-		displayName: 'Initiative ID',
-		name: 'initiativeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the initiative to remove epics from',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	initiativeRlc(showFor),
 	{
 		displayName: 'Epic IDs',
 		name: 'epic_ids',
@@ -42,7 +33,7 @@ export async function initiativeEpicRemove(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const initiativeId = this.getNodeParameter('initiativeId', 0) as string;
+	const initiativeId = rlcValue(this, 'initiativeId', 0);
 	const epicIdsRaw = this.getNodeParameter('epic_ids', 0) as string;
 	const epic_ids = epicIdsRaw.split(',').map((id) => id.trim());
 

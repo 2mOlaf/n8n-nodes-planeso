@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { initiativeLabelRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,24 +14,14 @@ const showFor = {
 };
 
 export const initiativeLabelGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Label ID',
-		name: 'labelId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the initiative label to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	initiativeLabelRlc(showFor),
 ];
 
 export async function initiativeLabelGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const labelId = this.getNodeParameter('labelId', 0) as string;
+	const labelId = rlcValue(this, 'labelId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

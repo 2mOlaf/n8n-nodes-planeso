@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { initiativeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['removeFromInitiative'],
@@ -14,24 +15,17 @@ const showFor = {
 };
 
 export const initiativeLabelRemoveFromInitiativeDescription: INodeProperties[] = [
+	initiativeRlc(showFor),
 	{
-		displayName: 'Initiative ID',
-		name: 'initiativeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the initiative to remove labels from',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Label IDs',
+		displayName: 'Label Names or IDs',
 		name: 'label_ids',
-		type: 'string',
-		default: '',
+		type: 'multiOptions',
+		default: [],
 		required: true,
-		description: 'Comma-separated list of label UUIDs to remove from the initiative',
+		description: 'The initiative labels to select. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		typeOptions: {
+			loadOptionsMethod: 'getInitiativeLabels',
+		},
 		displayOptions: {
 			show: showFor,
 		},
@@ -42,9 +36,9 @@ export async function initiativeLabelRemoveFromInitiative(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const initiativeId = this.getNodeParameter('initiativeId', 0) as string;
-	const labelIdsRaw = this.getNodeParameter('label_ids', 0) as string;
-	const label_ids = labelIdsRaw.split(',').map((id) => id.trim());
+	const initiativeId = rlcValue(this, 'initiativeId', 0);
+	const labelIdsRaw = this.getNodeParameter('label_ids', 0);
+	const label_ids = Array.isArray(labelIdsRaw) ? labelIdsRaw : (labelIdsRaw as string).split(',').map((id) => id.trim());
 
 	const body: IDataObject = {
 		label_ids,

@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { projectRlc, cycleRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['get'],
@@ -13,36 +14,16 @@ const showFor = {
 };
 
 export const cycleGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Cycle ID',
-		name: 'cycleId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the cycle to retrieve',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	cycleRlc(showFor),
 ];
 
 export async function cycleGet(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const cycleId = this.getNodeParameter('cycleId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const cycleId = rlcValue(this, 'cycleId', 0);
 
 	const response = await planeRequest.call(this, {
 		method: 'GET',

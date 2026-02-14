@@ -6,7 +6,7 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequestOffsetAllItems } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequestOffsetAllItems, rlcValue } from '../../utils/helpers';
 
 const showFor = {
 	operation: ['getAll'],
@@ -36,12 +36,39 @@ export const memberGetAllDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Project ID',
+		displayName: 'Project',
 		name: 'projectId',
-		type: 'string',
-		default: '',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		description: 'The ID of the project to list members for',
+		description: 'The project to use',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a project...',
+				typeOptions: {
+					searchListMethod: 'searchProjects',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g. 00000000-0000-0000-0000-000000000000',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-fA-F0-9-]+',
+							errorMessage: 'Not a valid ID',
+						},
+					},
+				],
+			},
+		],
 		displayOptions: {
 			show: {
 				...showFor,
@@ -87,7 +114,7 @@ export async function memberGetAll(
 
 	let url: string;
 	if (scope === 'project') {
-		const projectId = this.getNodeParameter('projectId', 0) as string;
+		const projectId = rlcValue(this, 'projectId', 0);
 		url = API_ENDPOINTS.PROJECT_MEMBERS(slug, projectId);
 	} else {
 		url = API_ENDPOINTS.WORKSPACE_MEMBERS(slug);

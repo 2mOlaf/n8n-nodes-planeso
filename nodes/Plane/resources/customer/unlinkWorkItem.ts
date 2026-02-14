@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { customerRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['unlinkWorkItem'],
@@ -13,17 +14,7 @@ const showFor = {
 };
 
 export const customerUnlinkWorkItemDescription: INodeProperties[] = [
-	{
-		displayName: 'Customer ID',
-		name: 'customerId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the customer to unlink the work item from',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	customerRlc(showFor),
 	{
 		displayName: 'Work Item ID',
 		name: 'workItemId',
@@ -41,7 +32,7 @@ export async function customerUnlinkWorkItem(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const customerId = this.getNodeParameter('customerId', 0) as string;
+	const customerId = rlcValue(this, 'customerId', 0);
 	const workItemId = this.getNodeParameter('workItemId', 0) as string;
 
 	await planeRequest.call(this, {

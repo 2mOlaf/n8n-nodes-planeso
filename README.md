@@ -60,6 +60,14 @@ You need a Plane API key:
 | Teamspace Project | Add, Get Many, Remove |
 | Sticky | Create, Get, Get Many, Update, Delete |
 
+## Dynamic Dropdowns
+
+Most ID fields (projects, states, labels, members, cycles, modules, etc.) are powered by dynamic dropdowns that load options directly from your Plane instance. No need to copy-paste UUIDs.
+
+Fields that depend on a selected project (states, labels, cycles, modules, work item types, epics) will automatically populate once a project is chosen.
+
+Multi-select fields like assignees and labels support selecting multiple values from the dropdown.
+
 ## Development
 
 ```zsh

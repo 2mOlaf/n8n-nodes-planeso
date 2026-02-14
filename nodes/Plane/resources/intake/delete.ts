@@ -5,7 +5,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { planeRequest, getWorkspaceSlug } from '../../utils/helpers';
+import { planeRequest, getWorkspaceSlug, rlcValue } from '../../utils/helpers';
+import { intakeRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['delete'],
@@ -13,24 +14,14 @@ const showFor = {
 };
 
 export const intakeDeleteDescription: INodeProperties[] = [
-	{
-		displayName: 'Intake ID',
-		name: 'intakeId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the intake issue to delete',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	intakeRlc(showFor),
 ];
 
 export async function intakeDelete(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const intakeId = this.getNodeParameter('intakeId', 0) as string;
+	const intakeId = rlcValue(this, 'intakeId', 0);
 
 	await planeRequest.call(this, {
 		method: 'DELETE',

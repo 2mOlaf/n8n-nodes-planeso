@@ -6,7 +6,8 @@ import type {
 } from 'n8n-workflow';
 
 import { API_ENDPOINTS } from '../../utils/constants';
-import { getWorkspaceSlug, planeRequest } from '../../utils/helpers';
+import { getWorkspaceSlug, planeRequest, rlcValue } from '../../utils/helpers';
+import { projectRlc, workItemRlc, propertyRlc } from '../../utils/rlcDefs';
 
 const showFor = {
 	operation: ['update'],
@@ -14,39 +15,9 @@ const showFor = {
 };
 
 export const customPropertyValueUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Project ID',
-		name: 'projectId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the project',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Work Item ID',
-		name: 'workItemId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the work item',
-		displayOptions: {
-			show: showFor,
-		},
-	},
-	{
-		displayName: 'Property ID',
-		name: 'propertyId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'The ID of the custom property to set the value for',
-		displayOptions: {
-			show: showFor,
-		},
-	},
+	projectRlc(showFor),
+	workItemRlc(showFor),
+	propertyRlc(showFor),
 	{
 		displayName: 'Value',
 		name: 'value',
@@ -64,9 +35,9 @@ export async function customPropertyValueUpdate(
 	this: IExecuteFunctions,
 ): Promise<INodeExecutionData[]> {
 	const slug = await getWorkspaceSlug(this);
-	const projectId = this.getNodeParameter('projectId', 0) as string;
-	const workItemId = this.getNodeParameter('workItemId', 0) as string;
-	const propertyId = this.getNodeParameter('propertyId', 0) as string;
+	const projectId = rlcValue(this, 'projectId', 0);
+	const workItemId = rlcValue(this, 'workItemId', 0);
+	const propertyId = rlcValue(this, 'propertyId', 0);
 	const value = this.getNodeParameter('value', 0) as string;
 
 	const body: IDataObject = {
