@@ -27,10 +27,10 @@ export async function workItemCommentDelete(
 	const workItemId = rlcValue(this, 'workItemId', 0);
 	const commentId = rlcValue(this, 'commentId', 0);
 
-	const response = await planeRequest.call(this, {
+	await planeRequest.call(this, {
 		method: 'DELETE',
 		url: API_ENDPOINTS.WORK_ITEM_COMMENT(slug, projectId, workItemId, commentId),
 	});
 
-	return this.helpers.returnJsonArray(Array.isArray(response) ? response : [response]);
+	return this.helpers.returnJsonArray([{ success: true }]);
 }

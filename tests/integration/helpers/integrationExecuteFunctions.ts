@@ -16,6 +16,12 @@ export function shouldSkipIntegrationTests(): boolean {
 	return !getIntegrationCredentials();
 }
 
+// Shared rate limit state across all requests (Plane API: 60 req/min)
+const rateLimitState = {
+	remaining: null as number | null,
+	resetAt: null as number | null, // epoch ms
+};
+
 export function createIntegrationExecuteFunctions(
 	nodeParameters: Record<string, unknown> = {},
 ): IExecuteFunctions {
@@ -63,11 +69,51 @@ export function createIntegrationExecuteFunctions(
 					}
 				}
 
-				const response = await fetch(urlObj.toString(), {
-					method,
-					headers,
-					body: method !== 'GET' && method !== 'HEAD' ? body : undefined,
-				});
+				const doFetch = async () =>
+					fetch(urlObj.toString(), {
+						method,
+						headers,
+						body: method !== 'GET' && method !== 'HEAD' ? body : undefined,
+					});
+
+				// Proactively wait if we know we're near the rate limit
+				const remaining = rateLimitState.remaining;
+				if (remaining !== null && remaining <= 2 && rateLimitState.resetAt !== null) {
+					const waitMs = rateLimitState.resetAt - Date.now();
+					if (waitMs > 0) {
+						await new Promise((r) => setTimeout(r, waitMs + 500));
+					}
+				}
+
+				const maxRetries = 5;
+				let response!: Response;
+
+				for (let attempt = 0; attempt <= maxRetries; attempt++) {
+					response = await doFetch();
+
+					// Update rate limit state from response headers
+					const rlRemaining = response.headers.get('x-ratelimit-remaining');
+					const rlReset = response.headers.get('x-ratelimit-reset');
+					if (rlRemaining !== null) {
+						rateLimitState.remaining = parseInt(rlRemaining, 10);
+					}
+					if (rlReset !== null) {
+						rateLimitState.resetAt = parseInt(rlReset, 10) * 1000; // epoch seconds → ms
+					}
+
+					if (response.status !== 429) break;
+
+					if (attempt < maxRetries) {
+						// Use X-RateLimit-Reset if available, otherwise fall back to exponential backoff
+						let delay: number;
+						if (rateLimitState.resetAt !== null) {
+							delay = Math.max(rateLimitState.resetAt - Date.now() + 500, 1000);
+						} else {
+							delay = 3000 * 2 ** attempt;
+						}
+						await new Promise((r) => setTimeout(r, delay));
+					}
+				}
 
 				// Match n8n's returnFullResponse shape (used by planeRequest for DELETE)
 				if (opts.returnFullResponse) {

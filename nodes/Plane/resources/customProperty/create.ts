@@ -29,6 +29,28 @@ export const customPropertyCreateDescription: INodeProperties[] = [
 		},
 	},
 	{
+		displayName: 'Property Type',
+		name: 'property_type',
+		type: 'options',
+		default: 'text',
+		required: true,
+		options: [
+			{ name: 'Checkbox', value: 'checkbox' },
+			{ name: 'Date', value: 'datetime' },
+			{ name: 'File', value: 'file' },
+			{ name: 'Multi Select', value: 'multi_select' },
+			{ name: 'Number', value: 'decimal' },
+			{ name: 'Option', value: 'option' },
+			{ name: 'Relation', value: 'relation' },
+			{ name: 'Text', value: 'text' },
+			{ name: 'URL', value: 'url' },
+		],
+		description: 'The type of the custom property',
+		displayOptions: {
+			show: showFor,
+		},
+	},
+	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
 		type: 'collection',
@@ -77,10 +99,12 @@ export async function customPropertyCreate(
 	const projectId = rlcValue(this, 'projectId', 0);
 	const typeId = rlcValue(this, 'typeId', 0);
 	const display_name = this.getNodeParameter('display_name', 0) as string;
+	const property_type = this.getNodeParameter('property_type', 0) as string;
 	const additionalFields = this.getNodeParameter('additionalFields', 0) as IDataObject;
 
 	const body: IDataObject = {
 		display_name,
+		property_type,
 		...additionalFields,
 	};
 

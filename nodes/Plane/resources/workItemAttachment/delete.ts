@@ -27,10 +27,10 @@ export async function workItemAttachmentDelete(
 	const workItemId = rlcValue(this, 'workItemId', 0);
 	const attachmentId = rlcValue(this, 'attachmentId', 0);
 
-	const response = await planeRequest.call(this, {
+	await planeRequest.call(this, {
 		method: 'DELETE',
 		url: API_ENDPOINTS.WORK_ITEM_ATTACHMENT(slug, projectId, workItemId, attachmentId),
 	});
 
-	return this.helpers.returnJsonArray(Array.isArray(response) ? response : [response]);
+	return this.helpers.returnJsonArray([{ success: true }]);
 }

@@ -25,10 +25,10 @@ export async function workItemTypeDelete(
 	const projectId = rlcValue(this, 'projectId', 0);
 	const typeId = rlcValue(this, 'typeId', 0);
 
-	const response = await planeRequest.call(this, {
+	await planeRequest.call(this, {
 		method: 'DELETE',
 		url: API_ENDPOINTS.WORK_ITEM_TYPE(slug, projectId, typeId),
 	});
 
-	return this.helpers.returnJsonArray(Array.isArray(response) ? response : [response]);
+	return this.helpers.returnJsonArray([{ success: true }]);
 }

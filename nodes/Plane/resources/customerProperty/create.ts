@@ -53,32 +53,15 @@ export const customerPropertyCreateDescription: INodeProperties[] = [
 				displayName: 'Property Type',
 				name: 'property_type',
 				type: 'options',
-				default: 'text',
+				default: 'TEXT',
 				options: [
-					{
-						name: 'Checkbox',
-						value: 'checkbox',
-					},
-					{
-						name: 'Date',
-						value: 'date',
-					},
-					{
-						name: 'Multi Select',
-						value: 'multi_select',
-					},
-					{
-						name: 'Number',
-						value: 'number',
-					},
-					{
-						name: 'Select',
-						value: 'select',
-					},
-					{
-						name: 'Text',
-						value: 'text',
-					},
+					{ name: 'Checkbox', value: 'CHECKBOX' },
+					{ name: 'Date', value: 'DATETIME' },
+					{ name: 'Decimal', value: 'DECIMAL' },
+					{ name: 'Multi Select', value: 'MULTI_SELECT' },
+					{ name: 'Option', value: 'OPTION' },
+					{ name: 'Text', value: 'TEXT' },
+					{ name: 'URL', value: 'URL' },
 				],
 				description: 'The type of the customer property',
 			},

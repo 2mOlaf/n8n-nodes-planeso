@@ -2,3 +2,16 @@
 *.tsbuildinfo
 *.git
 .editorconfig
+.env
+.env.*
+!.env.example
+tests/
+.github/
+.claude/
+coverage/
+src/
+node_modules/
+Makefile
+bun.lock
+yarn.lock
+npm-debug.log*
