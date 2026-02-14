@@ -1,0 +1,60 @@
+{
+	"name": "n8n-nodes-planeso",
+	"version": "0.1.0",
+	"description": "n8n community node for Plane project management",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"plane",
+		"project-management"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/hansdoebel/n8n-nodes-planeso#readme",
+	"author": {
+		"name": "Hans Doebel",
+		"email": "hansdev@mailbox.org"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hansdoebel/n8n-nodes-planeso.git"
+	},
+	"bugs": {
+		"url": "https://github.com/hansdoebel/n8n-nodes-planeso/issues"
+	},
+	"main": "index.js",
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"funding": {
+		"type": "buymeacoffee",
+		"url": "https://buymeacoffee.com/hansdoebel"
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": false,
+		"credentials": [
+			"dist/credentials/PlaneApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Plane/Plane.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "^0.17.0",
+		"eslint": "9.39.2",
+		"prettier": "3.7.4",
+		"release-it": "^19.1.0"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}

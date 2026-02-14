@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-planeso",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Project Management"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developers.plane.so/api-reference/introduction"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://developers.plane.so/api-reference/introduction"
+			}
+		]
+	}
+}
