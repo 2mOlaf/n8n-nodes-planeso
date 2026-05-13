@@ -6,9 +6,12 @@ dist
 npm-debug.log*
 yarn.lock
 .vscode/launch.json
+.vscode/
 coverage
 *.tsbuildinfo
 bun.lock
 .claude
+CLAUDE.md
 .env
 Makefile
+*.tgz
