@@ -375,7 +375,7 @@ export async function getCycles(
 ): Promise<INodePropertyOptions[]> {
 	try {
 		const slug = await getWorkspaceSlug(this);
-		const projectId = this.getCurrentNodeParameter('projectId') as string;
+		const projectId = this.getCurrentNodeParameter('projectId', { extractValue: true }) as string;
 		if (!projectId) return [];
 		const response = await planeRequest.call(this, {
 			method: 'GET',
@@ -395,7 +395,7 @@ export async function getModules(
 ): Promise<INodePropertyOptions[]> {
 	try {
 		const slug = await getWorkspaceSlug(this);
-		const projectId = this.getCurrentNodeParameter('projectId') as string;
+		const projectId = this.getCurrentNodeParameter('projectId', { extractValue: true }) as string;
 		if (!projectId) return [];
 		const response = await planeRequest.call(this, {
 			method: 'GET',
@@ -415,7 +415,7 @@ export async function getEpics(
 ): Promise<INodePropertyOptions[]> {
 	try {
 		const slug = await getWorkspaceSlug(this);
-		const projectId = this.getCurrentNodeParameter('projectId') as string;
+		const projectId = this.getCurrentNodeParameter('projectId', { extractValue: true }) as string;
 		if (!projectId) return [];
 		const response = await planeRequest.call(this, {
 			method: 'GET',
@@ -492,7 +492,7 @@ export async function getStates(
 ): Promise<INodePropertyOptions[]> {
 	try {
 		const slug = await getWorkspaceSlug(this);
-		const projectId = this.getCurrentNodeParameter('projectId') as string;
+		const projectId = this.getCurrentNodeParameter('projectId', { extractValue: true }) as string;
 		if (!projectId) return [];
 		const response = await planeRequest.call(this, {
 			method: 'GET',
@@ -512,7 +512,7 @@ export async function getLabels(
 ): Promise<INodePropertyOptions[]> {
 	try {
 		const slug = await getWorkspaceSlug(this);
-		const projectId = this.getCurrentNodeParameter('projectId') as string;
+		const projectId = this.getCurrentNodeParameter('projectId', { extractValue: true }) as string;
 		if (!projectId) return [];
 		const response = await planeRequest.call(this, {
 			method: 'GET',
@@ -532,7 +532,7 @@ export async function getWorkItemTypes(
 ): Promise<INodePropertyOptions[]> {
 	try {
 		const slug = await getWorkspaceSlug(this);
-		const projectId = this.getCurrentNodeParameter('projectId') as string;
+		const projectId = this.getCurrentNodeParameter('projectId', { extractValue: true }) as string;
 		if (!projectId) return [];
 		const response = await planeRequest.call(this, {
 			method: 'GET',
